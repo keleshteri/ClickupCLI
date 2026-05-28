@@ -66,6 +66,12 @@ export function displayTaskDetail(task: ClickUpTask): void {
   const sep = chalk.dim('─'.repeat(50));
   const label = (l: string) => chalk.cyan(l.padEnd(12));
 
+  const subtaskCount = task.subtasks?.length ?? 0;
+  const subtaskHint = subtaskCount > 0
+    ? chalk.yellow(`${subtaskCount} subtask${subtaskCount !== 1 ? 's' : ''}`) +
+      chalk.dim(`  →  clickup task subtasks ${task.id}`)
+    : chalk.dim('none');
+
   console.log(`
 ${sep}
 ${chalk.bold(task.name)}
@@ -78,6 +84,7 @@ ${label('Due date')}${formatDate(task.due_date)}
 ${label('Created')}${formatDate(task.date_created)}
 ${label('List')}${task.list.name}
 ${label('Tags')}${task.tags.map((t) => t.name).join(', ') || chalk.dim('none')}
+${label('Subtasks')}${subtaskHint}
 ${label('URL')}${chalk.underline(task.url)}
 ${sep}`);
 
@@ -86,6 +93,15 @@ ${sep}`);
   } else {
     console.log();
   }
+}
+
+export function displaySubtaskTable(parent: ClickUpTask, subtasks: ClickUpTask[]): void {
+  const sep = chalk.dim('─'.repeat(50));
+  console.log(`\n${sep}`);
+  console.log(`  ${chalk.cyan('Subtasks')} of ${chalk.bold(parent.name)}`);
+  console.log(`  ${chalk.dim(parent.id)} · ${subtasks.length} subtask${subtasks.length !== 1 ? 's' : ''}`);
+  console.log(sep);
+  displayTaskTable(subtasks);
 }
 
 export function displayWorkspaceTable(teams: ClickUpTeam[]): void {

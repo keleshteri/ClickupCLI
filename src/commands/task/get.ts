@@ -1,18 +1,20 @@
 import { createApiClient } from '../../api/client';
 import { getTask } from '../../api/task';
-import { displayTaskDetail } from '../../utils/display';
+import { displayTaskDetail, displaySubtaskTable } from '../../utils/display';
 import { createSpinner } from '../../utils/spinner';
 import { handleError } from '../../utils/errors';
 
 interface GetOptions {
   json?: boolean;
+  subtasks?: boolean;
 }
 
 export async function getTaskCommand(taskId: string, options: GetOptions): Promise<void> {
   try {
     const spinner = createSpinner(`Fetching task ${taskId}…`).start();
     const client = createApiClient();
-    const task = await getTask(client, taskId);
+    // Always include subtasks so the detail view can show the count
+    const task = await getTask(client, taskId, true);
     spinner.stop();
 
     if (options.json) {
@@ -21,6 +23,10 @@ export async function getTaskCommand(taskId: string, options: GetOptions): Promi
     }
 
     displayTaskDetail(task);
+
+    if (options.subtasks && task.subtasks && task.subtasks.length > 0) {
+      displaySubtaskTable(task, task.subtasks);
+    }
   } catch (error) {
     handleError(error);
   }

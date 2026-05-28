@@ -59,6 +59,8 @@ export interface ClickUpTask {
   list: { id: string; name: string; access: boolean };
   folder: { id: string; name: string; hidden: boolean; access: boolean };
   space: { id: string };
+  subtasks?: ClickUpTask[];
+  parent?: string | null;
 }
 
 export interface ClickUpSpace {

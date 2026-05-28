@@ -33,7 +33,13 @@ export async function getTasks(
   return { tasks: data.tasks, lastPage: data.last_page ?? true };
 }
 
-export async function getTask(client: AxiosInstance, taskId: string): Promise<ClickUpTask> {
-  const { data } = await client.get<ClickUpTask>(`/task/${taskId}`);
+export async function getTask(
+  client: AxiosInstance,
+  taskId: string,
+  includeSubtasks = false
+): Promise<ClickUpTask> {
+  const { data } = await client.get<ClickUpTask>(`/task/${taskId}`, {
+    params: includeSubtasks ? { include_subtasks: true } : undefined,
+  });
   return data;
 }
