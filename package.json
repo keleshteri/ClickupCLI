@@ -9,7 +9,9 @@
     "build": "tsup",
     "dev": "tsup --watch",
     "start": "node dist/index.js",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "install-cli": "npm run build && npm link",
+    "uninstall-cli": "npm unlink -g clickup-cli"
   },
   "dependencies": {
     "axios": "^1.6.0",
