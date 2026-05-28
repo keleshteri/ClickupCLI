@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import type { ClickUpTask, ClickUpTeam } from '../api/types';
+import type { ClickUpTask, ClickUpTeam, ClickUpSpace, ClickUpFolder, ClickUpList } from '../api/types';
 
 function formatDate(ts: string | null): string {
   if (!ts) return chalk.dim('-');
@@ -101,6 +101,61 @@ export function displayWorkspaceTable(teams: ClickUpTeam[]): void {
 
   for (const team of teams) {
     table.push([team.id, team.name, String(team.members.length)]);
+  }
+
+  console.log('\n' + table.toString() + '\n');
+}
+
+export function displaySpaceTable(spaces: ClickUpSpace[]): void {
+  if (spaces.length === 0) {
+    console.log(chalk.yellow('\n  No spaces found.\n'));
+    return;
+  }
+
+  const table = new Table({
+    head: [chalk.cyan('ID'), chalk.cyan('Name'), chalk.cyan('Private')],
+    style: { head: [], border: ['grey'] },
+  });
+
+  for (const s of spaces) {
+    table.push([s.id, s.name, s.private ? chalk.yellow('yes') : chalk.dim('no')]);
+  }
+
+  console.log('\n' + table.toString() + '\n');
+}
+
+export function displayFolderTable(folders: ClickUpFolder[]): void {
+  if (folders.length === 0) {
+    console.log(chalk.yellow('\n  No folders found.\n'));
+    return;
+  }
+
+  const table = new Table({
+    head: [chalk.cyan('ID'), chalk.cyan('Name'), chalk.cyan('Tasks')],
+    style: { head: [], border: ['grey'] },
+  });
+
+  for (const f of folders) {
+    table.push([f.id, f.name, f.task_count ?? chalk.dim('-')]);
+  }
+
+  console.log('\n' + table.toString() + '\n');
+}
+
+export function displayListTable(lists: ClickUpList[]): void {
+  if (lists.length === 0) {
+    console.log(chalk.yellow('\n  No lists found.\n'));
+    return;
+  }
+
+  const table = new Table({
+    head: [chalk.cyan('ID'), chalk.cyan('Name'), chalk.cyan('Tasks'), chalk.cyan('Folder')],
+    style: { head: [], border: ['grey'] },
+  });
+
+  for (const l of lists) {
+    const folder = l.folder.hidden ? chalk.dim('(none)') : l.folder.name;
+    table.push([l.id, l.name, l.task_count ?? chalk.dim('-'), folder]);
   }
 
   console.log('\n' + table.toString() + '\n');

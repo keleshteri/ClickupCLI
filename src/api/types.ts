@@ -66,3 +66,21 @@ export interface ClickUpSpace {
   name: string;
   private: boolean;
 }
+
+export interface ClickUpFolder {
+  id: string;
+  name: string;
+  task_count: string;
+  hidden: boolean;
+  space: { id: string; name: string };
+}
+
+export interface ClickUpList {
+  id: string;
+  name: string;
+  task_count: number | null;
+  archived: boolean;
+  folder: { id: string; name: string; hidden: boolean; access: boolean };
+  space: { id: string; name: string; access: boolean };
+  permission_level: string;
+}

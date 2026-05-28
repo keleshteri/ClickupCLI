@@ -2,6 +2,10 @@ import { Command } from 'commander';
 import chalk from 'chalk';
 import { createAuthCommand } from './commands/auth';
 import { createWorkspaceCommand } from './commands/workspace';
+import { createSpaceCommand } from './commands/space';
+import { createFolderCommand } from './commands/folder';
+import { createListCommand } from './commands/list';
+import { createBrowseCommand } from './commands/browse';
 import { createTaskCommand } from './commands/task';
 
 const program = new Command();
@@ -13,6 +17,10 @@ program
 
 program.addCommand(createAuthCommand());
 program.addCommand(createWorkspaceCommand());
+program.addCommand(createSpaceCommand());
+program.addCommand(createFolderCommand());
+program.addCommand(createListCommand());
+program.addCommand(createBrowseCommand());
 program.addCommand(createTaskCommand());
 
 program.parse(process.argv);
