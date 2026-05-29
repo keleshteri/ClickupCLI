@@ -1,5 +1,5 @@
 import type { AxiosInstance } from 'axios';
-import type { ClickUpTask } from './types';
+import type { ClickUpTask, ClickUpComment } from './types';
 
 export interface TaskFilters {
   page?: number;
@@ -42,4 +42,12 @@ export async function getTask(
     params: includeSubtasks ? { include_subtasks: true } : undefined,
   });
   return data;
+}
+
+export async function getTaskComments(
+  client: AxiosInstance,
+  taskId: string
+): Promise<ClickUpComment[]> {
+  const { data } = await client.get<{ comments: ClickUpComment[] }>(`/task/${taskId}/comment`);
+  return data.comments ?? [];
 }

@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import Table from 'cli-table3';
-import type { ClickUpTask, ClickUpTeam, ClickUpSpace, ClickUpFolder, ClickUpList } from '../api/types';
+import type { ClickUpTask, ClickUpComment, ClickUpTeam, ClickUpSpace, ClickUpFolder, ClickUpList } from '../api/types';
 
 function formatDate(ts: string | null): string {
   if (!ts) return chalk.dim('-');
@@ -93,6 +93,31 @@ ${sep}`);
   } else {
     console.log();
   }
+}
+
+export function displayComments(comments: ClickUpComment[]): void {
+  const sep = chalk.dim('─'.repeat(50));
+  console.log(`\n${sep}`);
+  console.log(`  ${chalk.cyan('Comments')}  ${chalk.dim(`(${comments.length})`)}`);
+  console.log(sep);
+
+  if (comments.length === 0) {
+    console.log(chalk.dim('\n  No comments.\n'));
+    return;
+  }
+
+  for (const c of comments) {
+    const date = new Date(parseInt(c.date, 10)).toLocaleString();
+    const author = chalk.bold(c.user.username);
+    const resolved = c.resolved ? chalk.dim(' [resolved]') : '';
+    console.log(`\n  ${author}  ${chalk.dim(date)}${resolved}`);
+    const lines = c.comment_text.split('\n');
+    for (const line of lines) {
+      console.log(`  ${line}`);
+    }
+  }
+
+  console.log(`\n${sep}\n`);
 }
 
 export function displaySubtaskTable(parent: ClickUpTask, subtasks: ClickUpTask[]): void {

@@ -23,6 +23,9 @@ export function createTaskCommand(): Command {
     .command('get <taskId>')
     .description('Show full detail for a task')
     .option('--subtasks', 'Also show subtasks below the detail')
+    .option('--comments', 'Also show all task comments')
+    .option('--export', 'Save task + attachments to a local folder with README.md')
+    .option('--path <dir>', 'Export destination (overrides configured export path)')
     .option('--json', 'Output as JSON')
     .action((taskId, opts) => getTaskCommand(taskId, opts));
 

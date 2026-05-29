@@ -9,4 +9,5 @@ export interface AccountConfig {
 export interface CliConfig {
   activeAccount: string | null;
   accounts: Record<string, AccountConfig>;
+  exportPath?: string;
 }

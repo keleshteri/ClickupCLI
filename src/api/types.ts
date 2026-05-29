@@ -61,6 +61,7 @@ export interface ClickUpTask {
   space: { id: string };
   subtasks?: ClickUpTask[];
   parent?: string | null;
+  attachments?: ClickUpAttachment[];
 }
 
 export interface ClickUpSpace {
@@ -75,6 +76,52 @@ export interface ClickUpFolder {
   task_count: string;
   hidden: boolean;
   space: { id: string; name: string };
+}
+
+export interface ClickUpRichBlock {
+  type?: string;
+  text?: string;
+  attributes?: Record<string, unknown>;
+  user?: Pick<ClickUpUser, 'id' | 'username' | 'email' | 'profilePicture'>;
+  image?: {
+    id: string;
+    name: string;
+    title: string;
+    url: string;
+    extension: string;
+    thumbnail_large: string;
+    thumbnail_medium: string;
+    thumbnail_small: string;
+    width: number;
+    height: number;
+  };
+}
+
+export interface ClickUpAttachment {
+  id: string;
+  date: string;
+  title: string;
+  type: number;
+  extension: string;
+  mimetype: string;
+  url: string;
+  thumbnail_small: string;
+  thumbnail_medium: string;
+  thumbnail_large: string;
+  size: number;
+  hidden: boolean;
+  deleted: boolean;
+  user: Pick<ClickUpUser, 'id' | 'username' | 'email' | 'profilePicture'>;
+}
+
+export interface ClickUpComment {
+  id: string;
+  comment?: ClickUpRichBlock[];
+  comment_text: string;
+  user: Pick<ClickUpUser, 'id' | 'username' | 'email' | 'profilePicture'>;
+  resolved: boolean;
+  date: string;
+  reactions?: { emoji: string; count: number }[];
 }
 
 export interface ClickUpList {

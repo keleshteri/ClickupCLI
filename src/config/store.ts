@@ -60,6 +60,16 @@ export const config = {
     write(c);
   },
 
+  getExportPath(): string | undefined {
+    return read().exportPath;
+  },
+
+  setExportPath(p: string): void {
+    const c = read();
+    c.exportPath = p;
+    write(c);
+  },
+
   get configPath(): string {
     return CONFIG_FILE;
   },
