@@ -133,3 +133,27 @@ export interface ClickUpList {
   space: { id: string; name: string; access: boolean };
   permission_level: string;
 }
+
+export interface ClickUpDoc {
+  id: string;
+  name: string;
+  workspace_id: string;
+  date_created: number;
+  date_updated: number;
+  parent: { id: string; type: number } | null;
+  creator: number;
+  deleted: boolean;
+  type: number;
+}
+
+export interface ClickUpDocPage {
+  id: string;
+  doc_id: string;
+  workspace_id: string;
+  name: string;
+  content?: string;
+  date_created: number;
+  date_updated: number;
+  parent_page_id: string | null;
+  pages?: ClickUpDocPage[];
+}

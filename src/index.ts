@@ -8,6 +8,7 @@ import { createListCommand } from './commands/list';
 import { createBrowseCommand } from './commands/browse';
 import { createTaskCommand } from './commands/task';
 import { createConfigCommand } from './commands/config';
+import { createDocsCommand } from './commands/docs';
 
 const c = chalk;
 const dim = c.dim;
@@ -44,6 +45,8 @@ ${bold('  Commands')}
   ${cyan('task')}         ${dim('list -l <listId>')}           Show tasks in a list
                 ${dim('get  <taskId>')}            Show one task in detail
                 ${dim('subtasks <taskId>')}        List subtasks of a task
+  ${cyan('docs')}         ${dim('list -w <workspaceId>')}      List ClickUp Docs in a workspace
+                ${dim('get  <docId> -w <id>')}     Show or export a doc
   ${cyan('config')}       ${dim('export-path [dir]')}          Get or set export directory
 
 ${bold('  task list flags')}
@@ -79,6 +82,9 @@ ${bold('  Examples')}
   ${dim('$')} clickup task get abc123 --comments
   ${dim('$')} clickup task get abc123 --export --path ~/exports
   ${dim('$')} clickup task subtasks abc123
+  ${dim('$')} clickup docs list --workspace 9012345
+  ${dim('$')} clickup docs get <docId> --workspace 9012345 --pages
+  ${dim('$')} clickup docs get <docId> --workspace 9012345 --export --path ~/exports
   ${dim('$')} clickup config export-path ~/clickup-exports
   ${dim('$')} clickup browse
 
@@ -102,6 +108,7 @@ program.addCommand(createFolderCommand());
 program.addCommand(createListCommand());
 program.addCommand(createBrowseCommand());
 program.addCommand(createTaskCommand());
+program.addCommand(createDocsCommand());
 program.addCommand(createConfigCommand());
 
 program.parse(process.argv);

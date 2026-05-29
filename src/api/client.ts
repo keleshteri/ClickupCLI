@@ -2,31 +2,13 @@ import axios, { type AxiosInstance, type AxiosError } from 'axios';
 import { config } from '../config/store';
 import { CliError } from '../utils/errors';
 
-const BASE_URL = 'https://api.clickup.com/api/v2';
-
-export function createApiClient(token?: string): AxiosInstance {
-  const activeToken = token ?? config.getActiveAccountConfig()?.token;
-
-  if (!activeToken) {
-    throw new CliError('No active account. Run `clickup auth add` to authenticate.');
-  }
-
-  const client = axios.create({
-    baseURL: BASE_URL,
-    headers: {
-      Authorization: activeToken,
-      'Content-Type': 'application/json',
-    },
-    timeout: 15000,
-  });
-
+function attachInterceptors(client: AxiosInstance): AxiosInstance {
   client.interceptors.response.use(
     (res) => res,
     (err: AxiosError) => {
       const status = err.response?.status;
       const url = (err.config?.url ?? '');
       if (status === 401) {
-        // ClickUp also returns 401 when the resource doesn't exist or the ID type is wrong
         if (url.includes('/list/') || url.includes('/task/')) {
           throw new CliError(
             'Not found or unauthorized (401).\n' +
@@ -44,6 +26,23 @@ export function createApiClient(token?: string): AxiosInstance {
       throw new CliError(`API error: ${msg}`);
     }
   );
-
   return client;
 }
+
+function makeClient(baseURL: string, token?: string): AxiosInstance {
+  const activeToken = token ?? config.getActiveAccountConfig()?.token;
+  if (!activeToken) {
+    throw new CliError('No active account. Run `clickup auth add` to authenticate.');
+  }
+  return attachInterceptors(axios.create({
+    baseURL,
+    headers: { Authorization: activeToken, 'Content-Type': 'application/json' },
+    timeout: 15000,
+  }));
+}
+
+export const createApiClient = (token?: string): AxiosInstance =>
+  makeClient('https://api.clickup.com/api/v2', token);
+
+export const createV3ApiClient = (token?: string): AxiosInstance =>
+  makeClient('https://api.clickup.com/api/v3', token);

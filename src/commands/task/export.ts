@@ -1,6 +1,10 @@
 import { createWriteStream, mkdirSync, existsSync, writeFileSync } from 'fs';
-import { join } from 'path';
+import { join, resolve } from 'path';
 import { homedir } from 'os';
+
+function resolvePath(p: string): string {
+  return resolve(p.replace(/^~(?=$|\/)/, homedir()));
+}
 import axios from 'axios';
 import { config } from '../../config/store';
 import type { ClickUpTask, ClickUpComment, ClickUpRichBlock } from '../../api/types';
@@ -150,7 +154,7 @@ export async function exportTask(
   const token = config.getActiveAccountConfig()?.token;
   if (!token) throw new Error('No active account token');
 
-  const base = outputPath ?? config.getExportPath() ?? join(homedir(), 'clickup-exports');
+  const base = resolvePath(outputPath ?? config.getExportPath() ?? join(homedir(), 'clickup-exports'));
   const folderName = `${task.id}-${sanitize(task.name)}`;
   const taskDir = join(base, folderName);
   const attDir = join(taskDir, 'attachments');
