@@ -13,6 +13,9 @@ Do NOT describe what you would do — actually run the commands and show results
 2. Use `--json` on every command so output is machine-readable
 3. Parse the JSON results and present them clearly to the user
 4. If you need an ID you don't have yet, run the discovery command to get it first
+5. Prefer the narrowest command that satisfies the request — use `task status` instead of
+   `task update` when only the status needs changing; use `task comment add` instead of
+   anything heavier when just posting a comment
 
 ---
 
@@ -38,7 +41,7 @@ clickup list list -f <folderId> --json        # lists inside a folder
 clickup list list -s <spaceId> --json         # folderless lists in a space
 ```
 
-### Tasks
+### Read tasks
 
 ```bash
 clickup task list -l <listId> --json
@@ -50,6 +53,69 @@ clickup task list -l <listId> -p 1 --json          # page 2 (0-based)
 clickup task get <taskId> --json
 clickup task get <taskId> --subtasks --comments --json
 clickup task subtasks <taskId> --json
+```
+
+### Update a task (full — use only when multiple fields must change at once)
+
+```bash
+clickup task update <taskId> --name "New title" --json
+clickup task update <taskId> --status "in review" --priority high --json
+clickup task update <taskId> --due-date 2025-12-31 --json
+clickup task update <taskId> --add-assignee 1234567 --json
+clickup task update <taskId> --remove-assignee 1234567 --json
+clickup task update <taskId> --description "Updated desc" --notify-all --json
+# priority values: urgent | high | normal | low
+```
+
+### Update task status only (preferred when only status changes)
+
+```bash
+clickup task status <taskId> "in progress" --json
+clickup task status <taskId> "done" --notify --json
+```
+
+### Comments
+
+```bash
+# Add a comment
+clickup task comment add <taskId> -m "Your comment here" --json
+clickup task comment add <taskId> -m "FYI everyone" --notify --json
+
+# Edit your own comment (requires the comment ID)
+clickup task comment update <taskId> <commentId> -m "Corrected text" --json
+clickup task comment update <taskId> <commentId> -m "Fixed" --resolved --json
+clickup task comment update <taskId> <commentId> -m "Re-open" --unresolved --json
+
+# To find a comment ID, fetch the task with --comments first:
+clickup task get <taskId> --comments --json
+```
+
+### Docs — read
+
+```bash
+clickup docs list -w <workspaceId> --json
+clickup docs get <docId> -w <workspaceId> --json
+clickup docs get <docId> -w <workspaceId> --pages --json
+clickup docs get <docId> -w <workspaceId> --export --path ~/exports
+```
+
+### Docs — create & update
+
+```bash
+# Create a new doc
+clickup docs create -w <workspaceId> --name "Doc title" --json
+clickup docs create -w <workspaceId> --name "Doc title" --visibility public --json
+
+# Add a page to an existing doc
+clickup docs page add <docId> -w <workspaceId> --name "Page title" --json
+clickup docs page add <docId> -w <workspaceId> --name "Page title" --content "# Heading\nBody text" --json
+clickup docs page add <docId> -w <workspaceId> --name "Sub-page" --parent <parentPageId> --json
+clickup docs page add <docId> -w <workspaceId> --name "From file" --file ./notes.md --json
+
+# Update an existing page
+clickup docs page update <docId> <pageId> -w <workspaceId> --content "# Updated\nNew body" --json
+clickup docs page update <docId> <pageId> -w <workspaceId> --name "New title" --json
+clickup docs page update <docId> <pageId> -w <workspaceId> --file ./updated.md --json
 ```
 
 ### Auth
@@ -71,6 +137,17 @@ https://app.clickup.com/<workspace>/v/l/li/<listId>
 
 ---
 
+## Safety rules for write operations
+
+- **Status-only change** → always use `task status`, never `task update`
+- **Single comment** → always use `task comment add`, never `task update`
+- **Edit a comment** → verify ownership by running `task get <id> --comments --json` first,
+  then use `task comment update`
+- **Full update** → use `task update` only when ≥2 fields must change in one call
+- Never guess IDs — run the discovery command first if unsure
+
+---
+
 ## Common request patterns
 
 **"Show tasks in [list name]"**
@@ -87,3 +164,25 @@ https://app.clickup.com/<workspace>/v/l/li/<listId>
 
 **"Which tasks are assigned to me / in progress"**
 → Get list ID, then `clickup task list -l <id> -s "IN PROGRESS" --json`
+
+**"Move task <id> to done / change its status"**
+→ `clickup task status <taskId> "done" --json`
+
+**"Update the name and priority of task <id>"**
+→ `clickup task update <taskId> --name "New name" --priority high --json`
+
+**"Add a comment to task <id>"**
+→ `clickup task comment add <taskId> -m "Your comment" --json`
+
+**"Edit my comment <cId> on task <id>"**
+→ First confirm with `task get <taskId> --comments --json`, then
+  `clickup task comment update <taskId> <commentId> -m "Updated text" --json`
+
+**"Create a new doc called <name>"**
+→ Get workspace ID first, then `clickup docs create -w <workspaceId> --name "<name>" --json`
+
+**"Add a page to doc <id>"**
+→ `clickup docs page add <docId> -w <workspaceId> --name "Page title" --content "…" --json`
+
+**"Update page <pageId> in doc <docId>"**
+→ `clickup docs page update <docId> <pageId> -w <workspaceId> --content "…" --json`
