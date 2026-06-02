@@ -62,6 +62,7 @@ export interface ClickUpTask {
   subtasks?: ClickUpTask[];
   parent?: string | null;
   attachments?: ClickUpAttachment[];
+  custom_fields?: ClickUpCustomField[];
 }
 
 export interface ClickUpSpace {
@@ -95,6 +96,24 @@ export interface ClickUpRichBlock {
     width: number;
     height: number;
   };
+  // embed/bookmark blocks (Google Drive, Figma, etc.)
+  embed?: {
+    url: string;
+    title?: string;
+    description?: string;
+  };
+}
+
+export interface ClickUpCustomField {
+  id: string;
+  name: string;
+  type: string;
+  type_config?: {
+    options?: Array<{ orderindex: number; name: string; color?: string }>;
+    [key: string]: unknown;
+  };
+  value?: unknown;
+  required?: boolean;
 }
 
 export interface ClickUpAttachment {

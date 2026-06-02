@@ -39,7 +39,10 @@ export async function getTask(
   includeSubtasks = false
 ): Promise<ClickUpTask> {
   const { data } = await client.get<ClickUpTask>(`/task/${taskId}`, {
-    params: includeSubtasks ? { include_subtasks: true } : undefined,
+    params: {
+      ...(includeSubtasks ? { include_subtasks: true } : {}),
+      custom_fields: true,
+    },
   });
   return data;
 }
