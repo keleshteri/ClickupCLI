@@ -1,6 +1,20 @@
 import type { AxiosInstance } from 'axios';
 import type { ClickUpTask, ClickUpComment } from './types';
 
+export interface UpdateTaskPayload {
+  name?: string;
+  description?: string;
+  status?: string;
+  priority?: number | null;
+  due_date?: number | null;
+  due_date_time?: boolean;
+  start_date?: number | null;
+  start_date_time?: boolean;
+  time_estimate?: number | null;
+  notify_all?: boolean;
+  assignees?: { add?: number[]; rem?: number[] };
+}
+
 export interface TaskFilters {
   page?: number;
   statuses?: string[];
@@ -53,4 +67,37 @@ export async function getTaskComments(
 ): Promise<ClickUpComment[]> {
   const { data } = await client.get<{ comments: ClickUpComment[] }>(`/task/${taskId}/comment`);
   return data.comments ?? [];
+}
+
+export async function updateTask(
+  client: AxiosInstance,
+  taskId: string,
+  payload: UpdateTaskPayload
+): Promise<ClickUpTask> {
+  const { data } = await client.put<ClickUpTask>(`/task/${taskId}`, payload);
+  return data;
+}
+
+export async function addComment(
+  client: AxiosInstance,
+  taskId: string,
+  text: string,
+  notifyAll = false
+): Promise<{ id: string }> {
+  const { data } = await client.post<{ id: string }>(`/task/${taskId}/comment`, {
+    comment_text: text,
+    notify_all: notifyAll,
+  });
+  return data;
+}
+
+export async function updateComment(
+  client: AxiosInstance,
+  commentId: string,
+  text: string,
+  resolved?: boolean
+): Promise<void> {
+  const body: Record<string, unknown> = { comment_text: text };
+  if (resolved !== undefined) body['resolved'] = resolved;
+  await client.put(`/comment/${commentId}`, body);
 }

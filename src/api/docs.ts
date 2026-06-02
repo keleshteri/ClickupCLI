@@ -23,3 +23,47 @@ export async function getDocPages(workspaceId: string, docId: string): Promise<C
   );
   return data.pages ?? [];
 }
+
+export async function createDoc(
+  workspaceId: string,
+  name: string,
+  visibility: 'public' | 'private' = 'private'
+): Promise<ClickUpDoc> {
+  const client = createV3ApiClient();
+  const { data } = await client.post<ClickUpDoc>(`/workspaces/${workspaceId}/docs`, {
+    name,
+    visibility,
+  });
+  return data;
+}
+
+export async function createDocPage(
+  workspaceId: string,
+  docId: string,
+  name: string,
+  content = '',
+  parentPageId?: string
+): Promise<ClickUpDocPage> {
+  const client = createV3ApiClient();
+  const body: Record<string, unknown> = { name, content, content_format: 'text/md' };
+  if (parentPageId) body['parent_page_id'] = parentPageId;
+  const { data } = await client.post<ClickUpDocPage>(
+    `/workspaces/${workspaceId}/docs/${docId}/pages`,
+    body
+  );
+  return data;
+}
+
+export async function updateDocPage(
+  workspaceId: string,
+  docId: string,
+  pageId: string,
+  fields: { name?: string; content?: string }
+): Promise<ClickUpDocPage> {
+  const client = createV3ApiClient();
+  const { data } = await client.put<ClickUpDocPage>(
+    `/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`,
+    { ...fields, content_format: 'text/md' }
+  );
+  return data;
+}
