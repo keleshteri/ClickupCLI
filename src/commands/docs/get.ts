@@ -47,8 +47,15 @@ export async function getDocCommand(
         md += `## ${p.name}\n\n${p.content ?? ''}\n\n`;
       }
       writeFileSync(join(dir, 'README.md'), md, 'utf-8');
+      const pageCount = (pages ?? []).length;
       console.log(`\n${chalk.green('✓')} Doc exported to ${chalk.cyan(dir)}`);
-      console.log(chalk.dim(`  ${(pages ?? []).length} page${(pages ?? []).length !== 1 ? 's' : ''} written to README.md\n`));
+      if (pageCount === 0) {
+        console.log(chalk.yellow('  ⚠  0 pages written — ClickUp returned no pages from the list endpoint.'));
+        console.log(chalk.dim(`  Fetch pages individually: clickup docs page get ${docId} <pageId> -w ${workspaceId} --json`));
+      } else {
+        console.log(chalk.dim(`  ${pageCount} page${pageCount !== 1 ? 's' : ''} written to README.md`));
+      }
+      console.log();
       return;
     }
 
