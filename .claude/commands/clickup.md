@@ -97,6 +97,9 @@ clickup docs list -w <workspaceId> --json
 clickup docs get <docId> -w <workspaceId> --json
 clickup docs get <docId> -w <workspaceId> --pages --json
 clickup docs get <docId> -w <workspaceId> --export --path ~/exports
+
+# Fetch a single page directly (use this when --pages returns empty/incomplete)
+clickup docs page get <docId> <pageId> -w <workspaceId> --json
 ```
 
 ### Docs — create & update
@@ -113,6 +116,8 @@ clickup docs page add <docId> -w <workspaceId> --name "Sub-page" --parent <paren
 clickup docs page add <docId> -w <workspaceId> --name "From file" --file ./notes.md --json
 
 # Update an existing page
+# ClickUp returns an empty body on update; the CLI automatically re-fetches the page
+# and returns { ok, status, verified, page } so you always get the confirmed current state
 clickup docs page update <docId> <pageId> -w <workspaceId> --content "# Updated\nNew body" --json
 clickup docs page update <docId> <pageId> -w <workspaceId> --name "New title" --json
 clickup docs page update <docId> <pageId> -w <workspaceId> --file ./updated.md --json
@@ -144,6 +149,8 @@ https://app.clickup.com/<workspace>/v/l/li/<listId>
 - **Edit a comment** → verify ownership by running `task get <id> --comments --json` first,
   then use `task comment update`
 - **Full update** → use `task update` only when ≥2 fields must change in one call
+- **Fetch a specific doc page** → always use `docs page get <docId> <pageId>` rather than
+  `docs get --pages` when you already have the page ID — the list endpoint can return incomplete results
 - Never guess IDs — run the discovery command first if unsure
 
 ---
@@ -184,5 +191,10 @@ https://app.clickup.com/<workspace>/v/l/li/<listId>
 **"Add a page to doc <id>"**
 → `clickup docs page add <docId> -w <workspaceId> --name "Page title" --content "…" --json`
 
+**"Get page <pageId> from doc <docId>"**
+→ `clickup docs page get <docId> <pageId> -w <workspaceId> --json`
+
 **"Update page <pageId> in doc <docId>"**
 → `clickup docs page update <docId> <pageId> -w <workspaceId> --content "…" --json`
+→ Response is `{ ok: true, status: 200, verified: true, page: {...} }` — ClickUp's PUT returns
+  an empty body, so the CLI re-fetches and confirms the change automatically

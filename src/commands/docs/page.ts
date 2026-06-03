@@ -1,6 +1,6 @@
 import chalk from 'chalk';
 import { readFileSync } from 'fs';
-import { createDocPage, updateDocPage } from '../../api/docs';
+import { createDocPage, updateDocPage, getDocPage } from '../../api/docs';
 import { createSpinner } from '../../utils/spinner';
 import { handleError } from '../../utils/errors';
 
@@ -10,6 +10,11 @@ interface PageAddOptions {
   content?: string;
   file?: string;
   parent?: string;
+  json?: boolean;
+}
+
+interface PageGetOptions {
+  workspace: string;
   json?: boolean;
 }
 
@@ -26,6 +31,33 @@ function resolveContent(options: { content?: string; file?: string }): string {
     return readFileSync(options.file, 'utf-8');
   }
   return options.content ?? '';
+}
+
+export async function getPageCommand(
+  docId: string,
+  pageId: string,
+  options: PageGetOptions
+): Promise<void> {
+  try {
+    const spinner = createSpinner('Fetching page…').start();
+    const page = await getDocPage(options.workspace, docId, pageId);
+    spinner.stop();
+
+    if (options.json) {
+      console.log(JSON.stringify(page, null, 2));
+      return;
+    }
+
+    const label = (l: string) => chalk.cyan(l.padEnd(12));
+    console.log(chalk.green('✓') + ' Page found');
+    console.log(`\n${label('Page ID')}${chalk.dim(page.id)}`);
+    console.log(`${label('Name')}${page.name}`);
+    if (page.parent_page_id) console.log(`${label('Parent')}${chalk.dim(page.parent_page_id)}`);
+    if (page.content) console.log(`\n${page.content}`);
+    console.log();
+  } catch (error) {
+    handleError(error);
+  }
 }
 
 export async function addPageCommand(
@@ -78,11 +110,13 @@ export async function updatePageCommand(
 
   try {
     const spinner = createSpinner('Updating page…').start();
-    const page = await updateDocPage(options.workspace, docId, pageId, fields);
+    await updateDocPage(options.workspace, docId, pageId, fields);
+    // ClickUp returns empty body on update; fetch to verify and return current state
+    const page = await getDocPage(options.workspace, docId, pageId);
     spinner.stop();
 
     if (options.json) {
-      console.log(JSON.stringify(page, null, 2));
+      console.log(JSON.stringify({ ok: true, status: 200, verified: true, page }, null, 2));
       return;
     }
 

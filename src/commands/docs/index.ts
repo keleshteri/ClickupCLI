@@ -2,7 +2,7 @@ import { Command } from 'commander';
 import { listDocs } from './list';
 import { getDocCommand } from './get';
 import { createDocCommand } from './create';
-import { addPageCommand, updatePageCommand } from './page';
+import { addPageCommand, updatePageCommand, getPageCommand } from './page';
 
 export function createDocsCommand(): Command {
   const docs = new Command('docs').description('Browse and export ClickUp Docs');
@@ -36,6 +36,13 @@ export function createDocsCommand(): Command {
 
   // page sub-group
   const page = new Command('page').description('Manage pages within a doc');
+
+  page
+    .command('get <docId> <pageId>')
+    .description('Fetch a single page from a doc')
+    .requiredOption('-w, --workspace <workspaceId>', 'Workspace ID')
+    .option('--json', 'Output as JSON')
+    .action((docId, pageId, opts) => getPageCommand(docId, pageId, opts));
 
   page
     .command('add <docId>')

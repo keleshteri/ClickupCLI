@@ -15,6 +15,19 @@ export async function getDoc(workspaceId: string, docId: string): Promise<ClickU
   return data;
 }
 
+export async function getDocPage(
+  workspaceId: string,
+  docId: string,
+  pageId: string
+): Promise<ClickUpDocPage> {
+  const client = createV3ApiClient();
+  const { data } = await client.get<ClickUpDocPage>(
+    `/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`,
+    { params: { content_format: 'text/md' } }
+  );
+  return data;
+}
+
 export async function getDocPages(workspaceId: string, docId: string): Promise<ClickUpDocPage[]> {
   const client = createV3ApiClient();
   const { data } = await client.get<{ pages: ClickUpDocPage[] }>(
@@ -59,11 +72,13 @@ export async function updateDocPage(
   docId: string,
   pageId: string,
   fields: { name?: string; content?: string }
-): Promise<ClickUpDocPage> {
+): Promise<ClickUpDocPage | null> {
   const client = createV3ApiClient();
-  const { data } = await client.put<ClickUpDocPage>(
+  const { data } = await client.put<ClickUpDocPage | string>(
     `/workspaces/${workspaceId}/docs/${docId}/pages/${pageId}`,
     { ...fields, content_format: 'text/md' }
   );
-  return data;
+  // ClickUp returns HTTP 200 with an empty body on success
+  if (!data || (typeof data === 'string' && data.trim() === '')) return null;
+  return data as ClickUpDocPage;
 }
