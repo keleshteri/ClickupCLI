@@ -53,7 +53,17 @@ export async function getDocCommand(
     }
 
     if (opts.json) {
-      console.log(JSON.stringify(pages ? { ...doc, pages } : doc, null, 2));
+      const payload = pages
+        ? {
+            ...doc,
+            pages,
+            ...(pages.length === 0 && {
+              _warning:
+                'ClickUp returned no pages — the pages list endpoint may be incomplete. Use "docs page get <docId> <pageId>" to fetch a page directly.',
+            }),
+          }
+        : doc;
+      console.log(JSON.stringify(payload, null, 2));
       return;
     }
 
@@ -62,7 +72,9 @@ export async function getDocCommand(
 
     if (pages) {
       if (!pages.length) {
-        console.log(chalk.dim('\n  (no pages)'));
+        console.log(chalk.yellow('\n  ⚠  ClickUp returned no pages for this doc.'));
+        console.log(chalk.dim('  The pages list endpoint may be incomplete.'));
+        console.log(chalk.dim(`  If you know the page ID, fetch it directly:\n  clickup docs page get ${docId} <pageId> -w ${workspaceId} --json`));
       } else {
         for (const p of pages) {
           console.log(`\n${chalk.cyan('─── ' + p.name)}`);

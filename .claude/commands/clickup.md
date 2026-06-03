@@ -95,12 +95,18 @@ clickup task get <taskId> --comments --json
 ```bash
 clickup docs list -w <workspaceId> --json
 clickup docs get <docId> -w <workspaceId> --json
-clickup docs get <docId> -w <workspaceId> --pages --json
+clickup docs get <docId> -w <workspaceId> --pages --json   # ⚠ may return pages:[] — see note below
 clickup docs get <docId> -w <workspaceId> --export --path ~/exports
 
-# Fetch a single page directly (use this when --pages returns empty/incomplete)
+# Fetch a single page directly (PREFERRED when you have the page ID)
 clickup docs page get <docId> <pageId> -w <workspaceId> --json
 ```
+
+> **Known limitation — `docs get --pages` may return `"pages": []`**
+> ClickUp's v3 pages-list endpoint (`/docs/{id}/pages`) can return an empty array even when
+> pages exist. The `--json` response will include a `_warning` field when this happens.
+> **Workaround**: use `docs page get <docId> <pageId>` with the direct page ID — that endpoint
+> is reliable. The `--export` path is also affected; if it writes 0 pages, fetch pages individually.
 
 ### Docs — create & update
 
@@ -149,8 +155,9 @@ https://app.clickup.com/<workspace>/v/l/li/<listId>
 - **Edit a comment** → verify ownership by running `task get <id> --comments --json` first,
   then use `task comment update`
 - **Full update** → use `task update` only when ≥2 fields must change in one call
-- **Fetch a specific doc page** → always use `docs page get <docId> <pageId>` rather than
-  `docs get --pages` when you already have the page ID — the list endpoint can return incomplete results
+- **Fetch a specific doc page** → always prefer `docs page get <docId> <pageId>` over
+  `docs get --pages` — ClickUp's list endpoint reliably returns `pages: []` even when pages exist;
+  the direct single-page endpoint always works
 - Never guess IDs — run the discovery command first if unsure
 
 ---
